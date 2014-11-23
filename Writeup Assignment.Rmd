@@ -1,0 +1,76 @@
+Programming Assignment Coursera Johns Hopkins Practical Machine Learning
+========================================================
+
+
+# Load the libraries, set everything
+
+```{r}
+library(caret)
+library(randomForest)
+set.seed(1234)
+```
+
+# Collecting the data
+
+```{r}
+# following code was used to download the data
+
+# setwd("C:/Coursera/Practical Machine Learning")
+
+#if (!file.exists("data")) {
+#  dir.create("data")
+#}
+
+#fileUrl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+#download.file(fileUrl, destfile = "./data/bestand.csv")
+#list.files("./data")
+
+
+bestand <- read.csv("./data/bestand.csv")
+
+head(bestand)
+```
+
+
+```
+
+# machine learning 
+
+I will split this training set again in 2 parts, a training set and testset.
+
+The logical step would be to use the best part for training. However, due to time
+constraints, I will use a small part for training, the analyses will go quicker.
+In fact, the algorithm would be better with a larger set
+
+```{r}
+inTrain <- createDataPartition(y=bestand$classe,
+                               p=0.2, list=FALSE)
+
+training <-bestand[inTrain,]
+testing <-bestand[-inTrain,]
+dim(training) 
+dim(testing)
+
+```
+
+The model I choose is the random forest, as this is considered to be on the best models.
+```{r}
+
+
+fit <- train(classe ~ pitch_arm + yaw_arm + roll_arm + roll_belt + pitch_belt + yaw_belt + gyros_belt_x + gyros_belt_y + gyros_belt_z + accel_belt_x + accel_belt_y + accel_belt_z + magnet_belt_x + magnet_belt_y + magnet_belt_z + gyros_arm_x + gyros_arm_y + gyros_arm_z + accel_arm_x + accel_arm_y + accel_arm_z + magnet_arm_x + magnet_arm_y + magnet_arm_z + roll_dumbbell + pitch_dumbbell + yaw_dumbbell ,method="rf", data=training, prox=FALSE)
+
+
+print(fit$finalModel)
+```
+
+
+The results of the model: 
+
+```{r}
+predictTrain <- predict(fit,training)
+confusionMatrix(predictTrain,training$classe)
+
+predictTest <- predict(fit,testing)
+confusionMatrix(predictTest,testing$classe)
+```
+
